@@ -1,4 +1,4 @@
-import {Request, response, Response} from 'express'
+import {Request, Response} from 'express'
 import path from 'path'
 import fs from 'fs-extra'
 
@@ -23,9 +23,7 @@ export async function getPhoto (req : Request, res : Response): Promise<Response
 export async function createPhoto(req : Request, res : Response): Promise<Response> {
     
     console.log('Saving photo...');
-    //console.log(req.body);
-    //console.log(req.file?.path);
-    
+       
     const {title, description} = req.body;
     const newPhoto = {
         title: title,

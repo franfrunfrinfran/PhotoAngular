@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+console.log(process.env.TOKEN_SECRET);
 import app from "./app";
 import {startConnection} from "./database";
 
