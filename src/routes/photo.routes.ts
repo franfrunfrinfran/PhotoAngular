@@ -3,17 +3,18 @@ import {Router} from 'express';
 const router = Router();
 
 import {createPhoto, getPhotos, getPhoto, deletePhoto, updatePhoto} from '../controllers/photo.controller'
+import {tokenValidation} from '../libs/validateToken'
 
 import multer from '../libs/multer'
 
 router.route('/photos')
-    .get(getPhotos)
-    .post(multer.single('image'), createPhoto)
+    .get(tokenValidation, getPhotos)
+    .post(tokenValidation, multer.single('image'), createPhoto)
     
 router.route('/photos/:id')
-    .get(getPhoto)
-    .delete(deletePhoto)
-    .put(updatePhoto)
+    .get(tokenValidation, getPhoto)
+    .delete(tokenValidation, deletePhoto)
+    .put(tokenValidation, updatePhoto)
 
 
 //router.route('/').get(HelloWorld);

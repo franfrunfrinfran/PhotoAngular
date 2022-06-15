@@ -29,10 +29,12 @@ const userSchema = new Schema({
         required: true
     }
 });
+
 userSchema.methods.encryptPassword = async (password : string): Promise<string> =>{
     const salt = await bcryptjs.genSalt(10);
     return bcryptjs.hash(password, salt);
 };
+
 userSchema.methods.validatePassword = async function (password: string): Promise<boolean>{
    return await bcryptjs.compare(password, this.password);
 };

@@ -8,7 +8,8 @@ import Photo from '../models/Photo'
 
 //Varias fotos
 export async function getPhotos (req : Request, res : Response): Promise<Response> {
-    const photos = await Photo.find();
+    const photos = await Photo.find({_idUser: req.userId})
+    
     return res.json(photos);
 }
 //Una foto
@@ -28,12 +29,12 @@ export async function createPhoto(req : Request, res : Response): Promise<Respon
     const newPhoto = {
         title: title,
         description: description,
-        imagePath: req.file?.path
+        imagePath: req.file?.path,
+        _idUser: req.userId
     };
 
     const photo = new Photo(newPhoto);
     await photo.save();
-    //console.log(photo);
     
     return res.json({
         message:'Photo create',
@@ -44,30 +45,42 @@ export async function createPhoto(req : Request, res : Response): Promise<Respon
 export async function deletePhoto(req: Request, res : Response): Promise<Response>{
 
     const {id} = req.params;
-    //console.log(id);
-    const photo = await Photo.findByIdAndRemove(id);
-    console.log(photo);
-        
+
+    let photo = null;
     try {
-        if (photo){
-            console.log(path)
-            await fs.unlink(path.resolve(photo.imagePath))
+        photo = await Photo.findById(id)
+    
+        if(photo) {
+            if(photo?._idUser == req.userId){
+                
+                await Photo.findByIdAndRemove(id)
+                
+                await fs.unlink(path.resolve(photo!.imagePath))
+                return res.json({
+                    message:'Photo Delete',
+                    photo
+                });
+            }
         }
+
+        return res.status(404).json({
+            error: 404,
+            message: "Photo not found"
+        })
     } catch (err) {
-        console.error('There was an error', err)
+        console.error('ERROR: ', err)
+        return res.status(400).json({
+            error: 400,
+            message: "Bad request"
+        })
     }
-        
-    return res.json({
-        message:'Photo Delete',
-        photo
-    });
 }
 
 
 export async function updatePhoto(req: Request, res : Response): Promise<Response>{
     const {id} = req.params;
     const {title, description} = req.body
-    console.log(req.body)
+
     const updatedPhoto = await Photo.findByIdAndUpdate(id, {
         title,
         description
@@ -78,16 +91,3 @@ export async function updatePhoto(req: Request, res : Response): Promise<Respons
         updatedPhoto
    });
 }
-
-    /*     var bodyParser = require('body-parser')
-    
-    bodyParser.urlencoded({
-        extended: true
-    });
-    */
-
-/* export function HelloWorld(req : Request, res : Response):Response {
-   
-    return res.send('HelloWorld')
-    
-}; */
